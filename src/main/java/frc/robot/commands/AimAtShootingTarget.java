@@ -34,6 +34,8 @@ public class AimAtShootingTarget extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    //TODO:Add adjusted yaw with swerve
+    
     // double setpoint = Units.degreesToRotations(vision.getPitchOfShootingTarget());
 
     //setpoint is tracked in degrees due to getPitch being returned in degrees

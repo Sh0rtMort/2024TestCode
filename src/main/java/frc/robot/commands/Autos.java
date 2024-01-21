@@ -14,6 +14,12 @@ public final class Autos {
     return Commands.run(()->subsystem.setMotorSpeed(0.2));
   }
 
+  /*
+   * 
+   * TODO:Add path planner support and auto paths
+   * 
+   */
+
   private Autos() {
     throw new UnsupportedOperationException("This is a utility class!");
   }
