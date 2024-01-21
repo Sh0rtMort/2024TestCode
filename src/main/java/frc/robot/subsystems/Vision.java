@@ -29,12 +29,12 @@ public class Vision extends SubsystemBase{
     }
 
     public double getPitchOfShootingTarget() {
-        // targetHeightMeters = Units.feetToMeters(10.875);
+        double ShootingtargetHeightMeters = Units.feetToMeters(10.875);
         var result = camera.getLatestResult();
         var bestTarget = result.getBestTarget();
 
         if (result.hasTargets()) {
-            return Math.atan(10.875 / getDistanceToTarget() - bestTarget.getPitch());
+            return Math.atan(ShootingtargetHeightMeters / getDistanceToTarget() - bestTarget.getPitch());
         } 
         //TODO: find the radius of the whole shooter in its entirety, for now its 1 foot
         //encoder ticks Radius(ft) = 76.595, THIS IS SO WRONG LMAOO

@@ -5,9 +5,12 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.AimThenShoot;
 import frc.robot.commands.Autos;
+import frc.robot.commands.DistanceToSetpoint;
 import frc.robot.commands.IntakePivot;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Intake;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -21,6 +24,7 @@ public class RobotContainer {
  
   private final Shooter shooter = new Shooter();
   private final Intake intake = new Intake();
+  private final Vision vision = new Vision();
 
   
   private final CommandXboxController m_driverController =
@@ -59,6 +63,8 @@ public class RobotContainer {
 
     m_driverController.leftBumper().whileTrue(shooter.RunMotors(0.2));
     m_driverController.rightBumper().whileTrue(shooter.RunMotorVoltage(400));
+    m_driverController.back().whileTrue(new DistanceToSetpoint(shooter, vision));
+    m_driverController.rightTrigger().whileTrue(new AimThenShoot(vision, intake, shooter));
     // m_driverController.x().onTrue(new SetpointCommand(shooter, 0));
   }
   

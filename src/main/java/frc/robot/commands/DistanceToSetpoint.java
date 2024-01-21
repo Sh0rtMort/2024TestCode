@@ -35,6 +35,8 @@ public class DistanceToSetpoint extends Command {
   public void execute() {
     double setpoint = Units.degreesToRotations(vision.getPitchOfShootingTarget());
     double speed = pidController.calculate(shooter.getPivotEncoder(), setpoint);
+
+    shooter.setPivotMotor(speed);
   }
 
   // Called once the command ends or is interrupted.

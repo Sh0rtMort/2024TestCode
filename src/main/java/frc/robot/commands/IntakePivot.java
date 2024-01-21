@@ -2,9 +2,9 @@ package frc.robot.commands;
 
 import frc.robot.subsystems.Intake;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
-public class IntakePivot extends CommandBase {
+public class IntakePivot extends Command {
   private final Intake intake;
   private PIDController pidController = new PIDController(0.015, 0.00015, 0);
   private double setpoint;

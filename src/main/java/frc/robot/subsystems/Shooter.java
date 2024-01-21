@@ -111,6 +111,10 @@ public class Shooter extends SubsystemBase {
     pivotMotor.setPosition(0);
   }
 
+  public static double InchesToRPM(double inches) {
+    return inches * 7.47 + 3800.0;
+  }
+
   @Override
   public void periodic() {
 
