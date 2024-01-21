@@ -9,6 +9,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Intake extends SubsystemBase{
@@ -17,26 +18,21 @@ public class Intake extends SubsystemBase{
 
     // private XboxController gamepad;
 
-    private PIDController pivotPidController = new PIDController(0.2, 0.002, 0);
+    // private PIDController pivotPidController = new PIDController(0.2, 0.002, 0);
 
-    private PeriodicIO periodicIO;
-
-    private static class PeriodicIO {
-        // Automated control
-        PivotStates pivot_target = PivotStates.stow;
-        PowerStates intake_state = PowerStates.none;
     
-        // Manual control
-        double intake_pivot_power = 0.0;
-        double intake_power = 0.0;
-      }
-
     public Intake() {
         pivotMotor.setNeutralMode(NeutralModeValue.Brake);
         powerMotor.setNeutralMode(NeutralModeValue.Brake);
 
+    }
 
-        periodicIO = new PeriodicIO();
+    public void setPivotMotor(double speed) {
+        pivotMotor.set(speed);
+    }
+
+    public void setIntakeMotor(double speed) {
+        powerMotor.set(speed);
     }
 
 
@@ -46,12 +42,77 @@ public class Intake extends SubsystemBase{
 
     public double getPivotAngleDegrees() {
 
-        return Units.rotationsToDegrees(pivotMotor.getPosition().getValueAsDouble());
+        return Units.rotationsToDegrees(getPivotPosition());
     }
 
     public void zeroPivotPostion() {
         pivotMotor.setPosition(0);
     }
+
+    public void stopIntake() {
+        pivotMotor.set(0);
+        powerMotor.set(0);
+    }
+
+    public boolean limitSwitchTriggered() {
+        return false;
+        // return !intakeLimitSwitch.get();
+    }
+
+    private boolean isPivotAtTarget(double targetSetpoint) {
+        return Math.abs(getPivotPosition() - targetSetpoint) < 5;
+    }
+
+    
+
+
+}
+
+
+
+
+
+/* archived stuff
+
+private class PeriodicIO {
+        // Automated control
+        PivotStates pivot_target = PivotStates.stow;
+        PowerStates intake_state = PowerStates.none;
+    
+        // Manual control
+        double intake_pivot_power = 0.0;
+        double intake_power = 0.0;
+      }
+public void outputTelemetry() {
+        SmartDashboard.putNumber("Intake speed:", stateToPowerSpeed(periodicIO.intake_state));
+        SmartDashboard.putNumber("Pivot Abs Enc (get):", pivotMotor.getPosition().getValue());
+        SmartDashboard.putNumber("Pivot Abs Enc (getAbsolutePosition):", pivotMotor.getPosition().getValueAsDouble());
+        SmartDashboard.putNumber("Pivot Abs Enc (getPivotAngleDegrees):", getPivotAngleDegrees());
+        SmartDashboard.putNumber("Pivot Setpoint:", pivotTargetToAngle(periodicIO.pivot_target));
+
+        SmartDashboard.putNumber("Pivot Power:", periodicIO.intake_pivot_power);
+        // SmartDashboard.putNumber("Pivot Current:", pivotMotor.getStatorCurrent());
+
+        SmartDashboard.putBoolean("Intake Limit Switch:", limitSwitchTriggered());
+  }
+
+
+    public void autoStore() {
+        //edit this when we add a limit switch
+        if (periodicIO.pivot_target == PivotStates.ground && limitSwitchTriggered() && isPivotAtTarget()) {
+            periodicIO.pivot_target = PivotStates.stow;
+        }
+    }
+
+
+    public void setPowerState(PowerStates state) {
+
+    }
+
+    public void setPivotTarget(PivotStates target) {
+        periodicIO.pivot_target = target;
+    }
+
 
     public enum PivotStates {
         none,
@@ -72,9 +133,21 @@ public class Intake extends SubsystemBase{
         double pivotAngle = pivotTargetToAngle(periodicIO.pivot_target);
         periodicIO.intake_pivot_power = pivotPidController.calculate(getPivotAngleDegrees(), pivotAngle);
         periodicIO.intake_power = stateToPowerSpeed(periodicIO.intake_state);
-
-
         
+        outputTelemetry();
+    }
+    
+    public void writePeriodicOutputs() {
+      pivotMotor.set(periodicIO.intake_pivot_power);
+      powerMotor.set(periodicIO.intake_power);
+    }
+
+    @Override
+    public void simulationPeriodic() {
+        double pivotAngle = pivotTargetToAngle(periodicIO.pivot_target);
+        periodicIO.intake_pivot_power = pivotPidController.calculate(getPivotAngleDegrees(), pivotAngle);
+        periodicIO.intake_power = stateToPowerSpeed(periodicIO.intake_state);
+        // System.out.println(periodicIO.pivot_target);
         outputTelemetry();
     }
 
@@ -129,47 +202,9 @@ public class Intake extends SubsystemBase{
         periodicIO.intake_state = PowerStates.feedShooter;
     }
 
-    public void stopIntake() {
-        periodicIO.intake_state = PowerStates.none;
-        periodicIO.intake_power = 0;
-    }
-
-    public void setPowerState(PowerStates state) {
-
-    }
-
-    public void setPivotTarget(PivotStates target) {
-        periodicIO.pivot_target = target;
-    }
-
-    public boolean limitSwitchTriggered() {
-        return false;
-        // return !intakeLimitSwitch.get();
-    }
-
-    public void autoStore() {
-        //edit this when we add a limit switch
-        if (periodicIO.pivot_target == PivotStates.ground && limitSwitchTriggered() && isPivotAtTarget()) {
-            periodicIO.pivot_target = PivotStates.stow;
-        }
-    }
-
-    private boolean isPivotAtTarget() {
-        return Math.abs(getPivotPosition() - pivotTargetToAngle(periodicIO.pivot_target)) < 5;
-    }
-
-    public void outputTelemetry() {
-        SmartDashboard.putNumber("Intake speed:", stateToPowerSpeed(periodicIO.intake_state));
-        SmartDashboard.putNumber("Pivot Abs Enc (get):", pivotMotor.getPosition().getValue());
-        SmartDashboard.putNumber("Pivot Abs Enc (getAbsolutePosition):", pivotMotor.getPosition().getValueAsDouble());
-        SmartDashboard.putNumber("Pivot Abs Enc (getPivotAngleDegrees):", getPivotAngleDegrees());
-        SmartDashboard.putNumber("Pivot Setpoint:", pivotTargetToAngle(periodicIO.pivot_target));
-
-        SmartDashboard.putNumber("Pivot Power:", periodicIO.intake_pivot_power);
-        // SmartDashboard.putNumber("Pivot Current:", pivotMotor.getStatorCurrent());
-
-        SmartDashboard.putBoolean("Intake Limit Switch:", limitSwitchTriggered());
-  }
 
 
-}
+
+
+
+*/

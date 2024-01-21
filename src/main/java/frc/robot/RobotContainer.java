@@ -6,10 +6,11 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.SetpointCommand;
-import frc.robot.subsystems.DefaultSubsystem;
+import frc.robot.commands.IntakePivot;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Intake;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -18,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class RobotContainer {
  
-  private final DefaultSubsystem m_exampleSubsystem = new DefaultSubsystem();
+  private final Shooter shooter = new Shooter();
   private final Intake intake = new Intake();
 
   
@@ -29,7 +30,10 @@ public class RobotContainer {
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+    intake.zeroPivotPostion();
 
+
+    // intake.writePeriodicOutputs();
   }
 
   /**
@@ -41,26 +45,25 @@ public class RobotContainer {
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
+  private double ground = 60;
+  private double store = 210;
+  private double source = 190;
+
   private void configureBindings() {
-    if (m_driverController.a().getAsBoolean()) {
-      intake.goToGround();
-    } else if (m_driverController.b().getAsBoolean()) {
-      intake.goToSource();
-    } else if (m_driverController.x().getAsBoolean()) {
-      intake.goToStow();
-    } else {
-      intake.stopIntake();
-    }
+  
 
+    m_driverController.a().toggleOnTrue(new IntakePivot(intake, ground));
+    m_driverController.b().toggleOnTrue(new IntakePivot(intake, source));
+    m_driverController.x().toggleOnTrue(new IntakePivot(intake, store));
     
-    m_driverController.b().whileTrue(m_exampleSubsystem.RunMotors(0.2));
-    m_driverController.a().whileTrue(m_exampleSubsystem.RunMotorVoltage(400));
-    m_driverController.x().onTrue(new SetpointCommand(m_exampleSubsystem, 0));
-  }
 
+    m_driverController.leftBumper().whileTrue(shooter.RunMotors(0.2));
+    m_driverController.rightBumper().whileTrue(shooter.RunMotorVoltage(400));
+    // m_driverController.x().onTrue(new SetpointCommand(shooter, 0));
+  }
   
   public Command getAutonomousCommand() {
     
-    return Autos.exampleAuto(m_exampleSubsystem);
+    return Autos.exampleAuto(shooter);
   }
 }

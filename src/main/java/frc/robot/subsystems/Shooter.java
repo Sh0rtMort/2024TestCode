@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -16,25 +17,33 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class DefaultSubsystem extends SubsystemBase {
+public class Shooter extends SubsystemBase {
   
   private TalonFX motor1 = new TalonFX(31);
   private TalonFX motor2 = new TalonFX(22);
 
-  public DefaultSubsystem() {
+  private TalonFX pivotMotor = new TalonFX(17);
+
+  public Shooter() {
     motor1.setInverted(false);
     motor2.setInverted(true);
+    pivotMotor.setInverted(false);
 
     motor1.setNeutralMode(NeutralModeValue.Coast);
     motor2.setNeutralMode(NeutralModeValue.Coast);
+    pivotMotor.setNeutralMode(NeutralModeValue.Brake);
 
-    PIDController shootingPIDController = new PIDController(0.2, 0.002, 0);
+    motor1.getConfigurator().apply(new TalonFXConfiguration());
+    motor2.getConfigurator().apply(new TalonFXConfiguration());
+    pivotMotor.getConfigurator().apply(new TalonFXConfiguration());
+
+    // PIDController shootingPIDController = new PIDController(0.2, 0.002, 0);
 
     var slot0Configs = new Slot0Configs();
       slot0Configs.kV = 0.12;
       slot0Configs.kP = 0.11;
-      slot0Configs.kI = 0.48;
-      slot0Configs.kD = 0.01;
+      slot0Configs.kI = 0.00048;
+      slot0Configs.kD = 0.0;
       motor1.getConfigurator().apply(slot0Configs, 0.050);
       motor2.getConfigurator().apply(slot0Configs, 0.050);
   }
@@ -50,6 +59,7 @@ public class DefaultSubsystem extends SubsystemBase {
   public Command RunMotorVoltage(double rpm) {
     return run(() -> {
       setMotorVolts(RPMToVolts(rpm));
+      System.out.println("Motor1 RPM = " + getRPMfromVelocity1() + "Motor2 RPM" + getRPMfromVelocity2());
     });
   }
 
@@ -73,22 +83,32 @@ public class DefaultSubsystem extends SubsystemBase {
     motor2.stopMotor();
   }
 
-  public double getMotor1Encoder() {
-    return 0;
+  public double getRPMfromVelocity1() {
+    // return (motor1.getVelocity().getValueAsDouble() * 600) / 2048; //real formula
+    return (400 * 600) / 2048;
   }
 
-  public double getMotor2Encoder() {
-    return 0;
-  }
-
-  public StatusSignal<Double> getVelocity() {
-    return motor1.getVelocity();
+  public double getRPMfromVelocity2() {
+    // return (motor2.getVelocity().getValueAsDouble() * 600) / 2048; //real formula
+    return (400  * 600) / 2048;
   }
 
   public double RPMToVolts(double TargetRPM) {
     //Formula: VConstant = (AppliedVolts / VelocityatVolts) 
     double velocityConstant = 12 / 4500; //Sample Numbers -> vc = 0.002667
     return velocityConstant * TargetRPM;
+  }
+
+  public void setPivotMotor(double speed) {
+    pivotMotor.set(speed);
+  }
+
+  public double getPivotEncoder() {
+    return pivotMotor.getPosition().getValueAsDouble();
+  }
+
+  public void zeroShootPivotEncoder() {
+    pivotMotor.setPosition(0);
   }
 
   @Override
