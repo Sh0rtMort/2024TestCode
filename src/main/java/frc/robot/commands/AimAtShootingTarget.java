@@ -35,8 +35,11 @@ public class AimAtShootingTarget extends Command {
   @Override
   public void execute() {
     // double setpoint = Units.degreesToRotations(vision.getPitchOfShootingTarget());
-    double setpoint = Conversions.degreesToFalcon(vision.getPitchOfShootingTarget(), 1);
-    double speed = pidController.calculate(shooter.getPivotEncoder(), setpoint);
+
+    //setpoint is tracked in degrees due to getPitch being returned in degrees
+    double setpoint = vision.getPitchOfShootingTarget();
+    //speed calculator must be calculated using the encoder ticks converted to degrees. this makes the units constant between all variables
+    double speed = pidController.calculate(Conversions.falconToDegrees(shooter.getPivotEncoder(), 1), setpoint);
 
     shooter.setPivotMotor(speed);
   }
