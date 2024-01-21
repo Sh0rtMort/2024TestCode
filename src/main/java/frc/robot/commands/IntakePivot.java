@@ -15,6 +15,7 @@ public class IntakePivot extends Command {
     this.setpoint = setpoint;
     addRequirements(intake);
 
+    //setpoint is tracked in degrees here
     pidController.setSetpoint(setpoint);
 
     pidController.setTolerance(0);
@@ -28,7 +29,8 @@ public class IntakePivot extends Command {
 
   @Override
   public void execute() {
-    double speed = pidController.calculate(intake.getPivotAngleDegrees(), setpoint);
+    //since setpoint is in degrees, we need to track the encoder in terms of degrees, not units
+    double speed = pidController.calculate(intake.getPivotAngleToFalconDegrees(), setpoint);
     intake.setPivotMotor(speed);
   }
 

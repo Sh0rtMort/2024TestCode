@@ -4,20 +4,28 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
+// import frc.robot.Constants.Swerve;
 import frc.robot.commands.AimThenShoot;
 import frc.robot.commands.Autos;
-import frc.robot.commands.DistanceToSetpoint;
+import frc.robot.commands.AimAtShootingTarget;
 import frc.robot.commands.IntakePivot;
+import frc.robot.commands.TeleopSwerve;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.Intake;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.*;
+import frc.robot.subsystems.*;
+import edu.wpi.first.wpilibj.GenericHID;
 
 
 public class RobotContainer {
@@ -25,14 +33,38 @@ public class RobotContainer {
   private final Shooter shooter = new Shooter();
   private final Intake intake = new Intake();
   private final Vision vision = new Vision();
+  private final Swerve s_swerve = new Swerve();
 
-  
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
- 
+
+  // private final CommandXboxController m_driverController =
+  //       new CommandXboxController(0);
+
+  private final CommandXboxController m_driverController = new CommandXboxController(0);
+
+  private final int translationAxis = XboxController.Axis.kLeftY.value;
+  private final int strafeAxis = XboxController.Axis.kLeftX.value;
+  private final int rotationAxis = XboxController.Axis.kRightX.value;      
+
+  private final boolean robotCentric = m_driverController.y().getAsBoolean();
+  // private final JoystickButton robotCentric = new JoystickButton(m_driverController, XboxController.Button.kLeftBumper.value);
+
+
+  private SendableChooser<Command> autoChooser = new SendableChooser<>();
+
   public RobotContainer() {
-    // Configure the trigger bindings
+
+    s_swerve.setDefaultCommand(
+            new TeleopSwerve(
+                s_swerve, 
+                () -> -m_driverController.getRawAxis(translationAxis), 
+                () -> -m_driverController.getRawAxis(strafeAxis), 
+                () -> -m_driverController.getRawAxis(rotationAxis), 
+                () -> robotCentric
+            )
+        );
+    
+    
     configureBindings();
     intake.zeroPivotPostion();
 
@@ -54,7 +86,8 @@ public class RobotContainer {
   private double source = 190;
 
   private void configureBindings() {
-  
+    
+    m_driverController.start().onTrue(new InstantCommand(() -> s_swerve.zeroHeading()));
 
     m_driverController.a().toggleOnTrue(new IntakePivot(intake, ground));
     m_driverController.b().toggleOnTrue(new IntakePivot(intake, source));
@@ -63,7 +96,7 @@ public class RobotContainer {
 
     m_driverController.leftBumper().whileTrue(shooter.RunMotors(0.2));
     m_driverController.rightBumper().whileTrue(shooter.RunMotorVoltage(400));
-    m_driverController.back().whileTrue(new DistanceToSetpoint(shooter, vision));
+    m_driverController.back().whileTrue(new AimAtShootingTarget(shooter, vision));
     m_driverController.rightTrigger().whileTrue(new AimThenShoot(vision, intake, shooter));
     // m_driverController.x().onTrue(new SetpointCommand(shooter, 0));
   }

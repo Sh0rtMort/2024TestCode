@@ -3,11 +3,12 @@ package frc.robot.commands;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.lib.math.Conversions;
 // import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Vision;
 
-public class DistanceToSetpoint extends Command {
+public class AimAtShootingTarget extends Command {
   private Shooter shooter;
   private Vision vision;
   private PIDController pidController = new PIDController(0.015, 0.0015, 0);
@@ -17,7 +18,7 @@ public class DistanceToSetpoint extends Command {
    *
    * @param subsystem The subsystem used by this command.
    */
-  public DistanceToSetpoint(Shooter shooter, Vision vision) {
+  public AimAtShootingTarget(Shooter shooter, Vision vision) {
     this.shooter = shooter;
     this.vision = vision;
     
@@ -33,7 +34,8 @@ public class DistanceToSetpoint extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    double setpoint = Units.degreesToRotations(vision.getPitchOfShootingTarget());
+    // double setpoint = Units.degreesToRotations(vision.getPitchOfShootingTarget());
+    double setpoint = Conversions.degreesToFalcon(vision.getPitchOfShootingTarget(), 1);
     double speed = pidController.calculate(shooter.getPivotEncoder(), setpoint);
 
     shooter.setPivotMotor(speed);

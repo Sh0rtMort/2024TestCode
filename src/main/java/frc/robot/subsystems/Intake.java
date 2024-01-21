@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.math.Conversions;
 
 public class Intake extends SubsystemBase{
     private TalonFX pivotMotor = new TalonFX(0);
@@ -41,8 +42,11 @@ public class Intake extends SubsystemBase{
     }
 
     public double getPivotAngleDegrees() {
-
         return Units.rotationsToDegrees(getPivotPosition());
+    }
+
+    public double getPivotAngleToFalconDegrees() {
+        return Conversions.falconToDegrees(getPivotPosition(), 1);
     }
 
     public void zeroPivotPostion() {

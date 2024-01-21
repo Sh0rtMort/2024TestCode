@@ -42,7 +42,7 @@ public class AimThenShoot extends Command {
         new ParallelCommandGroup( 
             new RunCommand(() -> shooter.RPMToVolts(3500)), 
             new IntakePivot(intake, 210),
-            new DistanceToSetpoint(shooter, vision)//.withTimeout(1)
+            new AimAtShootingTarget(shooter, vision)//.withTimeout(1)
             ).withTimeout(3),
         new ParallelRaceGroup(
             new RunCommand(() -> shooter.RPMToVolts(3500)),
