@@ -10,9 +10,6 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.AimAtShootingTarget;
 import frc.robot.commands.IntakePivot;
 import frc.robot.commands.TeleopSwerve;
-import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Vision;
-import frc.robot.subsystems.Intake;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -25,6 +22,9 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
+
+import com.pathplanner.lib.util.PIDConstants;
+
 import edu.wpi.first.wpilibj.GenericHID;
 
 
@@ -105,4 +105,16 @@ public class RobotContainer {
     
     return Autos.exampleAuto(shooter);
   }
+
+//   SwerveAutoBuilder autoBuilder = new SwerveAutoBuilder(
+//     driveSubsystem::getPose, // Pose2d supplier
+//     driveSubsystem::resetPose, // Pose2d consumer, used to reset odometry at the beginning of auto
+//     driveSubsystem.kinematics, // SwerveDriveKinematics
+//     new PIDConstants(5.0, 0.0, 0.0), // PID constants to correct for translation error (used to create the X and Y PID controllers)
+//     new PIDConstants(0.5, 0.0, 0.0), // PID constants to correct for rotation error (used to create the rotation controller)
+//     driveSubsystem::setModuleStates, // Module states consumer used to output to the drive subsystem
+//     eventMap,
+//     true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+//     driveSubsystem // The drive subsystem. Used to properly set the requirements of path following commands
+// );
 }
