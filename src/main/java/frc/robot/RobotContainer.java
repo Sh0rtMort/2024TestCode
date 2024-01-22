@@ -9,7 +9,7 @@ import frc.robot.commands.AimThenShoot;
 import frc.robot.commands.Autos;
 import frc.robot.commands.AimAtShootingTarget;
 import frc.robot.commands.IntakePivot;
-import frc.robot.commands.TeleopSwerve;
+// import frc.robot.commands.TeleopSwerve;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -33,7 +33,7 @@ public class RobotContainer {
   private final Shooter shooter = new Shooter();
   private final Intake intake = new Intake();
   private final Vision vision = new Vision();
-  private final Swerve s_swerve = new Swerve();
+  // private final Swerve s_swerve = new Swerve();
 
 
 
@@ -54,15 +54,15 @@ public class RobotContainer {
 
   public RobotContainer() {
 
-    s_swerve.setDefaultCommand(
-            new TeleopSwerve(
-                s_swerve, 
-                () -> -m_driverController.getRawAxis(translationAxis), 
-                () -> -m_driverController.getRawAxis(strafeAxis), 
-                () -> -m_driverController.getRawAxis(rotationAxis), 
-                () -> robotCentric
-            )
-        );
+    // s_swerve.setDefaultCommand(
+    //         new TeleopSwerve(
+    //             s_swerve, 
+    //             () -> -m_driverController.getRawAxis(translationAxis), 
+    //             () -> -m_driverController.getRawAxis(strafeAxis), 
+    //             () -> -m_driverController.getRawAxis(rotationAxis), 
+    //             () -> robotCentric
+    //         )
+    //     );
     
     
     configureBindings();
@@ -87,7 +87,7 @@ public class RobotContainer {
 
   private void configureBindings() {
     
-    m_driverController.start().onTrue(new InstantCommand(() -> s_swerve.zeroHeading()));
+    // m_driverController.start().onTrue(new InstantCommand(() -> s_swerve.zeroHeading()));
 
     m_driverController.a().toggleOnTrue(new IntakePivot(intake, ground));
     m_driverController.b().toggleOnTrue(new IntakePivot(intake, source));
